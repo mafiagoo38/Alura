@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="html-tag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الرئيسية | Alura</title>
+    <meta name="description" content="Alura - وجهتك الأولى للتسوق الأونلاين">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+    <link id="bootstrap-css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="home">
+
+    <div id="welcomeGate">
+        <div class="gate-card">
+            <div class="gate-logo"><i class="bi bi-gem"></i></div>
+            <h2 class="fw-bold brand-font mb-1" data-i18n="gateTitle">أهلاً بك في Alura</h2>
+            <p class="text-muted mb-4" data-i18n="gateSubtitle">وجهتك الأولى للتسوق الأونلاين المميز</p>
+            <button class="gate-option primary" onclick="openGateAuth('login')">
+                <i class="bi bi-box-arrow-in-left"></i>
+                <span data-i18n="gateSignin">تسجيل الدخول</span>
+            </button>
+            <button class="gate-option" onclick="openGateAuth('register')">
+                <i class="bi bi-person-plus"></i>
+                <span data-i18n="gateSignup">إنشاء حساب جديد</span>
+            </button>
+            <button class="gate-guest mt-2" onclick="continueAsGuest()" data-i18n="gateGuest">المتابعة كزائر</button>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light py-3 shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3 brand-font" href="index.html">
+                <i class="bi bi-gem me-2"></i><span data-i18n="brand">Alura</span>
+            </a>
+
+            <button class="btn btn-outline-secondary btn-sm ms-3 me-3" id="lang-toggle" onclick="toggleLanguage()">
+                English
+            </button>
+
+            <div class="mx-auto d-none d-lg-block" style="width: 38%;">
+                <form class="input-group" onsubmit="return handleNavSearch(event)">
+                    <input type="text" id="search-input" class="form-control bg-light border-0 py-2" placeholder="ابحث عن منتجات..." data-i18n-placeholder="search">
+                    <button class="btn btn-alura px-4" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+            </div>
+
+            <div class="d-flex gap-3 align-items-center">
+                <a href="wishlist.html" class="icon-btn position-relative" title="المفضلة">
+                    <i class="bi bi-heart-fill"></i><span class="badge-dot wishlist-badge">0</span>
+                </a>
+                <a href="cart.html" class="icon-btn position-relative" title="السلة">
+                    <i class="bi bi-cart-fill"></i><span class="badge-dot cart-badge">0</span>
+                </a>
+
+                <button class="icon-btn logged-out-only" data-bs-toggle="modal" data-bs-target="#authModal" title="تسجيل الدخول">
+                    <i class="bi bi-person-fill"></i>
+                </button>
+
+                <div class="dropdown logged-in-only" style="display:none;">
+                    <button class="btn btn-light dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown" id="user-name-display" style="color: var(--alura-primary);">
+                        حسابي
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i><span data-i18n="profile">الملف الشخصي</span></a></li>
+                        <li><a class="dropdown-item" href="profile.html#orders"><i class="bi bi-bag me-2"></i><span data-i18n="orders">طلباتي</span></a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><button class="dropdown-item text-danger" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i><span data-i18n="logout">تسجيل الخروج</span></button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="p-5 hero-banner shadow-sm">
+                    <div class="row align-items-center position-relative" style="z-index:1;">
+                        <div class="col-md-6 text-white">
+                            <span class="badge rounded-pill hero-badge text-white px-3 py-2 mb-3" data-i18n="heroBadge">
+                                <i class="bi bi-stars me-1"></i> تشكيلة صيف 2026
+                            </span>
+                            <h1 class="display-4 fw-bold mb-3 brand-font" data-i18n="heroTitle">تسوّق بثقة مع Alura</h1>
+                            <p class="fs-5 mb-4 opacity-75" data-i18n="heroDesc">اكتشف أحدث التشكيلات والعروض الحصرية بجودة تليق بك.</p>
+                            <a href="offers.html" class="btn btn-light btn-lg rounded-pill px-5 fw-bold shadow-sm" style="color: var(--alura-primary);" data-i18n="heroBtn">تصفح العروض</a>
+                        </div>
+                        <div class="col-md-6 text-center mt-4 mt-md-0">
+                            <i class="bi bi-bag-heart-fill text-white opacity-75" style="font-size: 9rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row text-center g-3 mb-5">
+            <div class="col-6 col-md-3 trust-item">
+                <i class="bi bi-truck d-block mb-2"></i>
+                <small class="fw-bold" data-i18n="trustShipping">شحن سريع لكل المحافظات</small>
+            </div>
+            <div class="col-6 col-md-3 trust-item">
+                <i class="bi bi-shield-check d-block mb-2"></i>
+                <small class="fw-bold" data-i18n="trustSecure">دفع آمن 100%</small>
+            </div>
+            <div class="col-6 col-md-3 trust-item">
+                <i class="bi bi-arrow-repeat d-block mb-2"></i>
+                <small class="fw-bold" data-i18n="trustReturn">إرجاع سهل خلال 14 يوم</small>
+            </div>
+            <div class="col-6 col-md-3 trust-item">
+                <i class="bi bi-headset d-block mb-2"></i>
+                <small class="fw-bold" data-i18n="trustSupport">دعم عملاء على مدار الساعة</small>
+            </div>
+        </div>
+
+        <h3 class="fw-bold mb-4 section-title" data-i18n="shopByCategory">تسوق حسب القسم</h3>
+
+        <div class="row g-4 text-center mb-5">
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="men.html" class="card border bg-white shadow-sm p-4 hover-card">
+                    <div class="cat-icon-wrap"><i class="bi bi-person-standing"></i></div>
+                    <h5 class="fw-bold m-0">الرجال</h5>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="women.html" class="card border bg-white shadow-sm p-4 hover-card">
+                    <div class="cat-icon-wrap"><i class="bi bi-person-standing-dress"></i></div>
+                    <h5 class="fw-bold m-0">النساء</h5>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="kids.html" class="card border bg-white shadow-sm p-4 hover-card">
+                    <div class="cat-icon-wrap"><i class="bi bi-emoji-smile"></i></div>
+                    <h5 class="fw-bold m-0">الأطفال</h5>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="bfl.html" class="card border bg-white shadow-sm p-4 hover-card">
+                    <div class="cat-icon-wrap"><i class="bi bi-tags-fill"></i></div>
+                    <h5 class="fw-bold m-0">براندات بسعر أقل</h5>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="products.html?cat=home" class="card border bg-white shadow-sm p-4 hover-card">
+                    <div class="cat-icon-wrap"><i class="bi bi-house-heart-fill"></i></div>
+                    <h5 class="fw-bold m-0">أدوات منزلية</h5>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="products.html?cat=stationery" class="card border bg-white shadow-sm p-4 hover-card">
+                    <div class="cat-icon-wrap"><i class="bi bi-pencil-fill"></i></div>
+                    <h5 class="fw-bold m-0">أدوات مكتبية</h5>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="categories.html" class="card border-0 shadow-sm p-4 hover-card d-flex align-items-center justify-content-center h-100" style="background: linear-gradient(135deg, #ece8ff, #f7f6fb);">
+                    <div style="color: var(--alura-primary);">
+                        <i class="bi bi-grid-fill fs-1 mb-2 d-block"></i>
+                        <h5 class="fw-bold m-0" data-i18n="more">كل الأقسام</h5>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <h3 class="fw-bold section-title mb-0" data-i18n="specialOffers">عروض خاصة</h3>
+            <a href="offers.html" class="fw-bold text-decoration-none" style="color:var(--alura-primary);" data-i18n="viewAll">عرض الكل <i class="bi bi-arrow-left"></i></a>
+        </div>
+        <div class="row g-4" id="home-offers"></div>
+    </div>
+
+    <footer class="pt-5 pb-4 mt-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <h4 class="fw-bold brand-font"><i class="bi bi-gem me-2"></i>Alura</h4>
+                    <p class="opacity-75 mt-2" data-i18n="footerAbout">Alura وجهتك الموثوقة للتسوق الأونلاين، نقدم منتجات عالية الجودة بأسعار تنافسية وتجربة تسوق استثنائية.</p>
+                </div>
+                <div class="col-md-2">
+                    <h6 class="fw-bold mb-3" data-i18n="footerShop">تسوق</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="men.html" data-i18n-cat="men">الرجال</a></li>
+                        <li class="mb-2"><a href="women.html" data-i18n-cat="women">النساء</a></li>
+                        <li class="mb-2"><a href="kids.html" data-i18n-cat="kids">الأطفال</a></li>
+                        <li class="mb-2"><a href="offers.html" data-i18n="specialOffers">عروض خاصة</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="fw-bold mb-3" data-i18n="footerSupport">الدعم</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="cart.html" data-i18n="cartTitle">سلة التسوق</a></li>
+                        <li class="mb-2"><a href="profile.html" data-i18n="profile">الملف الشخصي</a></li>
+                        <li class="mb-2"><a href="categories.html" data-i18n="allCategories">كل الأقسام</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="fw-bold mb-3" data-i18n="footerFollow">تابعنا</h6>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="icon-btn" style="background:rgba(255,255,255,0.1); color:#fff;" onclick="showToast(currentLang==='ar' ? 'صفحتنا على انستجرام قريباً' : 'Our Instagram page is coming soon','success')"><i class="bi bi-instagram"></i></button>
+                        <button type="button" class="icon-btn" style="background:rgba(255,255,255,0.1); color:#fff;" onclick="showToast(currentLang==='ar' ? 'صفحتنا على فيسبوك قريباً' : 'Our Facebook page is coming soon','success')"><i class="bi bi-facebook"></i></button>
+                        <button type="button" class="icon-btn" style="background:rgba(255,255,255,0.1); color:#fff;" onclick="showToast(currentLang==='ar' ? 'صفحتنا على تيك توك قريباً' : 'Our TikTok page is coming soon','success')"><i class="bi bi-tiktok"></i></button>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.15);">
+            <p class="text-center mb-0 opacity-50 small">© 2026 Alura. <span data-i18n="footerRights">جميع الحقوق محفوظة.</span></p>
+        </div>
+    </footer>
+
+    <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="fw-bold brand-font ms-2"><i class="bi bi-gem me-2" style="color:var(--alura-primary);"></i>Alura</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 pt-2">
+                    <ul class="nav nav-pills nav-justified mb-4" id="authTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active fw-bold" id="login-tab" data-bs-toggle="pill" data-bs-target="#login" type="button" data-i18n="loginText">تسجيل الدخول</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold" id="register-tab" data-bs-toggle="pill" data-bs-target="#register" type="button" data-i18n="registerText">حساب جديد</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="authTabsContent">
+                        <div class="tab-pane fade show active" id="login" role="tabpanel">
+                            <form id="loginForm" onsubmit="handleLogin(event)">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="email">البريد الإلكتروني</label>
+                                    <input type="email" class="form-control" id="loginEmail" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label" data-i18n="password">كلمة المرور</label>
+                                    <input type="password" class="form-control" id="loginPassword" required>
+                                </div>
+                                <div id="loginError" class="text-danger small mb-3" style="display:none;"></div>
+                                <button type="submit" class="btn btn-alura w-100 py-2 fw-bold" data-i18n="loginBtn">دخول</button>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade" id="register" role="tabpanel">
+                            <form id="registerForm" onsubmit="handleRegister(event)">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="name">الاسم</label>
+                                    <input type="text" class="form-control" id="regName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="email">البريد الإلكتروني</label>
+                                    <input type="email" class="form-control" id="regEmail" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label" data-i18n="password">كلمة المرور</label>
+                                    <input type="password" class="form-control" id="regPassword" required minlength="6">
+                                </div>
+                                <div id="registerError" class="text-danger small mb-3" style="display:none;"></div>
+                                <button type="submit" class="btn btn-success w-100 py-2 fw-bold" data-i18n="registerBtn">إنشاء حساب</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="mainToast" class="toast align-items-center text-white border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body" id="mainToastBody">تم!</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/pages.js"></script>
+
+</body>
+</html>
