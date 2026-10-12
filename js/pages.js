@@ -218,7 +218,7 @@ function initProductDetailPage() {
             </div>
         </div>
         <div class="col-md-7">
-            <div class="text-muted mb-1">${p.brand}</div>
+            <div class="product-brand mb-2">${p.brand}</div>
             <h2 class="fw-bold brand-font mb-3">${pName(p)}</h2>
             <div class="d-flex align-items-center gap-3 mb-4">
                 <span class="fs-3 fw-bold text-success">${fmtPrice(p.price)}</span>
@@ -300,11 +300,12 @@ function renderCartPage() {
         wrap.innerHTML = cart.map(item => {
             const p = aluraFindProduct(item.id);
             if (!p) return '';
+            const photo = productPhotoMarkup(p);
             return `
             <div class="cart-item-row p-3 mb-3 d-flex align-items-center gap-3 flex-wrap">
-                <div style="width:80px;height:80px;flex-shrink:0;" class="prod-img-ph rounded-3"><i class="bi ${p.icon}" style="font-size:1.8rem;"></i></div>
+                <div style="width:80px;height:80px;flex-shrink:0;" class="prod-img-ph ${photo.hasPhoto ? 'has-photo' : ''} rounded-3" data-photo-pid="${p.id}">${photo.html}</div>
                 <div class="flex-grow-1">
-                    <div class="small text-muted">${p.brand}</div>
+                    <div class="product-brand">${p.brand}</div>
                     <a href="product.html?id=${p.id}" class="fw-bold text-dark text-decoration-none">${pName(p)}</a>
                     <div class="fw-bold text-success mt-1">${fmtPrice(p.price)}</div>
                 </div>
@@ -480,6 +481,7 @@ function saveProfileInfo(e) {
     const users = getUsers();
     const idx = users.findIndex(u => u.email === user.email);
     if (idx > -1) { users[idx].name = name; saveUsers(users); }
+    gsCall('updateProfile', { email: user.email, name: name });
     showToast(t('editSaved'), 'success');
     checkLoginStatus();
     initProfilePage();
@@ -494,6 +496,7 @@ function confirmPhone(e) {
     const users = getUsers();
     const idx = users.findIndex(u => u.email === user.email);
     if (idx > -1) { users[idx].phone = phone; saveUsers(users); }
+    gsCall('updateProfile', { email: user.email, phone: phone });
     showToast(t('phoneConfirmed'), 'success');
     initProfilePage();
 }
@@ -596,5 +599,6 @@ function savePrefs() {
         country: document.getElementById('prefCountry').value
     };
     lsSet(PREFS_KEY, prefs);
+    scheduleUserDataSync();
     showToast(t('editSaved'), 'success');
 }

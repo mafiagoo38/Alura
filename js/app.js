@@ -50,12 +50,13 @@ function showToast(message, type) {
     new bootstrap.Toast(toastEl, { delay: 2600 }).show();
 }
 
-function handleRegister(e) {
+async function handleRegister(e) {
     e.preventDefault();
     const name = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
     const pass = document.getElementById('regPassword').value;
     const errorBox = document.getElementById('registerError');
+    const submitBtn = e.target.querySelector('button[type=submit]');
     errorBox.style.display = 'none';
 
     if (findUserByEmail(email)) {
@@ -64,11 +65,24 @@ function handleRegister(e) {
         return;
     }
 
+    if (submitBtn) submitBtn.disabled = true;
+    const passHash = hashPass(pass);
+
+    // نحاول نسجل على السيرفر (Google Sheet) الأول لو متظبط
+    const serverRes = await gsCall('register', { name, email, passHash });
+    if (serverRes && serverRes.ok === false && serverRes.error === 'exists') {
+        if (submitBtn) submitBtn.disabled = false;
+        errorBox.innerText = t('errEmailUsed');
+        errorBox.style.display = 'block';
+        return;
+    }
+
     const users = getUsers();
-    const newUser = { id: 'u_' + Date.now(), name, email, passHash: hashPass(pass), createdAt: new Date().toISOString() };
+    const newUser = { id: 'u_' + Date.now(), name, email, passHash, createdAt: new Date().toISOString() };
     users.push(newUser);
     saveUsers(users);
     localStorage.setItem(SESSION_KEY, email);
+    if (submitBtn) submitBtn.disabled = false;
 
     showToast(t('welcomeUser').replace('{name}', name), 'success');
     document.getElementById('registerForm').reset();
@@ -82,15 +96,33 @@ function handleRegister(e) {
     if (typeof onAuthChanged === 'function') onAuthChanged();
 }
 
-function handleLogin(e) {
+async function handleLogin(e) {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim();
     const pass = document.getElementById('loginPassword').value;
     const errorBox = document.getElementById('loginError');
+    const submitBtn = e.target.querySelector('button[type=submit]');
     errorBox.style.display = 'none';
+    const passHash = hashPass(pass);
 
-    const user = findUserByEmail(email);
-    if (user && user.passHash === hashPass(pass)) {
+    let user = findUserByEmail(email);
+
+    // لو الحساب مش موجود في المتصفح ده (مثلاً اتسجل من جهاز تاني)، نسأل السيرفر
+    if (!user || user.passHash !== passHash) {
+        if (submitBtn) submitBtn.disabled = true;
+        const serverRes = await gsCall('login', { email, passHash });
+        if (submitBtn) submitBtn.disabled = false;
+        if (serverRes && serverRes.ok && serverRes.user) {
+            const users = getUsers();
+            const idx = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
+            const localCopy = { id: serverRes.user.id, name: serverRes.user.name, email: serverRes.user.email, passHash, phone: serverRes.user.phone, country: serverRes.user.country, createdAt: serverRes.user.createdAt };
+            if (idx > -1) users[idx] = localCopy; else users.push(localCopy);
+            saveUsers(users);
+            user = localCopy;
+        }
+    }
+
+    if (user && user.passHash === passHash) {
         localStorage.setItem(SESSION_KEY, user.email);
         const modalEl = document.getElementById('authModal');
         const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
@@ -99,6 +131,7 @@ function handleLogin(e) {
         showToast(t('welcomeBack').replace('{name}', user.name), 'success');
         checkLoginStatus();
         closeWelcomeGate();
+        await hydrateUserDataFromServer(user.email);
         if (typeof onAuthChanged === 'function') onAuthChanged();
     } else {
         errorBox.innerText = t('errBadLogin');
@@ -167,7 +200,7 @@ function openGateAuth(tab) {
 
 /* ---------- السلة ---------- */
 function getCart() { return lsGet(CART_KEY, []); }
-function saveCart(cart) { lsSet(CART_KEY, cart); updateBadges(); }
+function saveCart(cart) { lsSet(CART_KEY, cart); updateBadges(); scheduleUserDataSync(); }
 
 function addToCart(id, qty) {
     qty = qty || 1;
@@ -200,7 +233,7 @@ function cartTotal() {
 
 /* ---------- المفضلة ---------- */
 function getWishlist() { return lsGet(WISHLIST_KEY, []); }
-function saveWishlist(list) { lsSet(WISHLIST_KEY, list); updateBadges(); }
+function saveWishlist(list) { lsSet(WISHLIST_KEY, list); updateBadges(); scheduleUserDataSync(); }
 function isWishlisted(id) { return getWishlist().includes(id); }
 function toggleWishlist(id) {
     let list = getWishlist();
@@ -213,13 +246,13 @@ function toggleWishlist(id) {
 
 /* ---------- العناوين ---------- */
 function getAddresses() { return lsGet(ADDR_KEY, []); }
-function saveAddresses(list) { lsSet(ADDR_KEY, list); }
+function saveAddresses(list) { lsSet(ADDR_KEY, list); scheduleUserDataSync(); }
 function addAddress(addr) { const list = getAddresses(); addr.id = 'a_' + Date.now(); list.push(addr); saveAddresses(list); return addr; }
 function deleteAddress(id) { saveAddresses(getAddresses().filter(a => a.id !== id)); }
 
 /* ---------- الكروت المحفوظة ---------- */
 function getCards() { return lsGet(CARDS_KEY, []); }
-function saveCards(list) { lsSet(CARDS_KEY, list); }
+function saveCards(list) { lsSet(CARDS_KEY, list); scheduleUserDataSync(); }
 function addCard(card) { const list = getCards(); card.id = 'c_' + Date.now(); list.push(card); saveCards(list); return card; }
 function deleteCard(id) { saveCards(getCards().filter(c => c.id !== id)); }
 
@@ -233,12 +266,19 @@ function createOrder(order) {
     order.status = 'قيد التجهيز';
     list.unshift(order);
     saveOrders(list);
+    const user = getCurrentUser();
+    if (user) gsCall('createOrder', { email: user.email, order: order });
     return order;
 }
 function requestReturn(orderId) {
     const list = getOrders();
     const order = list.find(o => o.id === orderId);
-    if (order) { order.status = 'طلب استرجاع قيد المراجعة'; saveOrders(list); }
+    if (order) {
+        order.status = 'طلب استرجاع قيد المراجعة';
+        saveOrders(list);
+        const user = getCurrentUser();
+        if (user) gsCall('requestReturn', { email: user.email, orderId: orderId });
+    }
 }
 
 /* ---------- شارات الأيقونات في الناف بار ---------- */
@@ -260,8 +300,33 @@ function fmtPrice(n) {
     return n.toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US') + (currentLang === 'ar' ? ' ج.م' : ' EGP');
 }
 function pName(p) { return currentLang === 'ar' ? p.name_ar : p.name_en; }
+
+function aluraImgFallback(imgEl) {
+    imgEl.style.display = 'none';
+    const wrap = imgEl.parentElement;
+    if (wrap) wrap.classList.remove('has-photo');
+    const icon = wrap ? wrap.querySelector('.img-fallback-icon') : null;
+    if (icon) icon.style.display = '';
+}
+
+/* لو الصورة متخزنة بالفعل (Cache) أو متحطة يدويًا (p.img) بترجع الـ markup جاهز،
+   ولو لسه مفيش صورة، بترجع الأيقونة وتبدأ تجيب صورة حقيقية في الخلفية (Unsplash) */
+function productPhotoMarkup(p) {
+    const cache = (typeof getPhotoCache === 'function') ? getPhotoCache() : {};
+    const cached = p.img || cache[p.id];
+    if (cached) {
+        return {
+            hasPhoto: true,
+            html: `<img src="${cached}" alt="${pName(p)}" loading="lazy" onerror="aluraImgFallback(this)"><i class="bi ${p.icon} img-fallback-icon" style="display:none;"></i>`
+        };
+    }
+    if (typeof ensurePhotoFetched === 'function') ensurePhotoFetched(p);
+    return { hasPhoto: false, html: `<i class="bi ${p.icon}"></i>` };
+}
+
 function pIconWrap(p, big) {
-    return `<div class="prod-img-ph ${big ? 'prod-img-ph-lg' : ''}"><i class="bi ${p.icon}"></i></div>`;
+    const res = productPhotoMarkup(p);
+    return `<div class="prod-img-ph ${res.hasPhoto ? 'has-photo' : ''} ${big ? 'prod-img-ph-lg' : ''}" data-photo-pid="${p.id}">${res.html}</div>`;
 }
 
 /* ---------- بطاقة منتج قابلة لإعادة الاستخدام ---------- */
@@ -278,7 +343,7 @@ function productCardHTML(p) {
             <a href="product.html?id=${p.id}" class="text-decoration-none text-dark">
                 ${pIconWrap(p)}
                 <div class="p-3 pb-2">
-                    <div class="small text-muted mb-1">${p.brand}</div>
+                    <div class="product-brand mb-1">${p.brand}</div>
                     <div class="fw-bold mb-2 product-name">${pName(p)}</div>
                     <div class="d-flex align-items-center gap-2">
                         <span class="fw-bold text-success">${fmtPrice(p.price)}</span>
@@ -454,4 +519,13 @@ document.addEventListener("DOMContentLoaded", function () {
     initWelcomeGate();
     updateBadges();
     if (typeof initPage === 'function') initPage();
+
+    const navbar = document.getElementById('mainNavbar');
+    if (navbar) {
+        const onScroll = function () {
+            navbar.classList.toggle('is-scrolled', window.scrollY > 8);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+    }
 });

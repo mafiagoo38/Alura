@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>النساء | Alura</title>
     <meta name="description" content="Alura - وجهتك الأولى للتسوق الأونلاين">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.svg">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,7 +35,19 @@
         </div>
     </div>
 
-    <nav class="navbar navbar-expand-lg navbar-light py-3 shadow-sm sticky-top">
+    <div class="topbar d-none d-md-block">
+        <div class="container">
+            <div class="topbar-links">
+                <span><i class="bi bi-truck"></i> <span data-i18n="trustShipping">شحن سريع لكل المحافظات</span></span>
+                <span><i class="bi bi-shield-check"></i> <span data-i18n="trustSecure">دفع آمن 100%</span></span>
+            </div>
+            <div class="topbar-links">
+                <span><i class="bi bi-headset"></i> <span data-i18n="trustSupport">دعم عملاء على مدار الساعة</span></span>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light py-3 sticky-top" id="mainNavbar">
         <div class="container">
             <a class="navbar-brand fw-bold fs-3 brand-font" href="index.html">
                 <i class="bi bi-gem me-2"></i><span data-i18n="brand">Alura</span>
@@ -201,6 +215,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/data.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/backend.js"></script>
+    <script src="js/photos.js"></script>
     <script src="js/app.js"></script>
     <script src="js/pages.js"></script>
 
